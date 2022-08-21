@@ -8,7 +8,6 @@ print(pesquisa)
 html = request.text
 
 def remove_tags(html):
-
     # parse html content
     soup = BeautifulSoup(html, "html.parser")
 
@@ -16,7 +15,7 @@ def remove_tags(html):
         # remove tags
         data.decompose()
 
-    return soup.find_all("h2")
+    return soup.find_all("h2", attrs={'class':'entry-title'})
 
 
 format_html = str(remove_tags(html))
@@ -26,13 +25,19 @@ json_archive = html_to_json.convert(format_html)
 count = 0
 arquivo = ""
 
-for i in range(0,10):
-    count = count + 1
-    arquivo += "\n\n" + json_archive['h2'][count]['a'][0]['_attributes']['href']
-    arquivo += "\n" + json_archive['h2'][count]['a'][0]['_value']
+for i in json_archive['h2']:
+    count += 1
+    try:
+        arquivo += "\n\n" + json_archive['h2'][count]['a'][0]['_attributes']['href']
+        arquivo += "\n" + json_archive['h2'][count]['a'][0]['_value']
+        print('\n\nnoticia: ' + json_archive['h2'][count]['a'][0]['_attributes']['href'])
+        print('\ntitulo: ' + json_archive['h2'][count]['a'][0]['_value'])
+    except:
+        print('\n\nOh não! não encontramos mais boatos deste a assunto')
+        break
 
-    print('\n\nnoticia: ' + json_archive['h2'][count]['a'][0]['_attributes']['href'])
-    print('\ntitulo: ' + json_archive['h2'][count]['a'][0]['_value'])
+    if count == 10:
+        break
 
 
 with open('noticias.txt', 'w', encoding='utf-8') as f:
